@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   User, 
   Building2, 
@@ -33,6 +33,9 @@ export default function RegistrationPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [companyImage, setCompanyImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const [animationPhase, setAnimationPhase] = useState(0);
+  const [currentStep, setCurrentStep] = useState(1);
 
   const [userForm, setUserForm] = useState({
     fullName: '',
@@ -41,7 +44,8 @@ export default function RegistrationPage() {
     phone: '',
     location: '',
     experience: 'fresher',
-    jobPreference: 'full-time'
+    jobPreference: 'full-time',
+    resume: null
   });
 
   const [recruiterForm, setRecruiterForm] = useState({
@@ -68,6 +72,9 @@ export default function RegistrationPage() {
     }, 3000);
     return () => clearInterval(interval);
   }, []);
+
+  const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, 2));
+  const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
 
   const handleUserFormChange = (field, value) => {
     setUserForm(prev => ({ ...prev, [field]: value }));
@@ -230,8 +237,31 @@ export default function RegistrationPage() {
         </div>
       </div>
 
-      <div className="animate-slide-in-right md:col-span-2" style={{ animationDelay: '600ms' }}>
-        <div className="grid grid-cols-2 gap-2">
+      <div className="animate-slide-in-right" style={{ animationDelay: '600ms' }}>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Upload Resume</label>
+        <div className="relative">
+          <input
+            type="file"
+            accept=".pdf,.doc,.docx"
+            onChange={handleResumeUpload}
+            className="hidden"
+            id="resume-upload"
+          />
+          <label
+            htmlFor="resume-upload"
+            className="w-full flex items-center justify-between pl-4 pr-6 py-3 text-black border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer transition-all duration-300"
+          >
+            <span className="truncate">
+              {userForm.resume ? userForm.resume.name : 'Select resume file'}
+            </span>
+            <Upload className="w-5 h-5 text-gray-400" />
+          </label>
+        </div>
+      </div>
+
+      <div className="animate-slide-in-right" style={{ animationDelay: '700ms' }}>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Experience Level</label>
+        <div className="grid grid-cols-2 gap-3">
           <button
             type="button"
             onClick={() => handleUserFormChange('experience', 'fresher')}
@@ -257,7 +287,7 @@ export default function RegistrationPage() {
         </div>
       </div>
 
-      <div className="animate-slide-in-right md:col-span-2" style={{ animationDelay: '700ms' }}>
+      <div className="animate-slide-in-right md:col-span-2" style={{ animationDelay: '800ms' }}>
         <button
           onClick={handleSubmit}
           disabled={isLoading}
@@ -347,6 +377,7 @@ export default function RegistrationPage() {
           </div>
 
           <div className="animate-slide-in-right md:col-span-2" style={{ animationDelay: '500ms' }}>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Company Logo</label>
             <div className="flex items-center space-x-4">
               {imagePreview ? (
                 <div className="relative">
@@ -364,7 +395,7 @@ export default function RegistrationPage() {
                   </button>
                 </div>
               ) : (
-                <div className="w-15 h-15 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:border-gray-400 transition-colors">
+                <div className="w-20 h-20 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:border-gray-400 transition-colors">
                   <Upload className="w-5 h-5 text-gray-400" />
                 </div>
               )}
@@ -381,8 +412,9 @@ export default function RegistrationPage() {
                   className="cursor-pointer bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg px-6 py-3 text-sm hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 inline-flex items-center"
                 >
                   <Upload className="w-4 h-4 mr-2" />
-                  Upload Company Logo
+                  Upload Logo
                 </label>
+                <p className="text-xs text-gray-500 mt-1">PNG, JPG up to 5MB</p>
               </div>
             </div>
           </div>
@@ -605,317 +637,17 @@ export default function RegistrationPage() {
             </div>
 
             {/* Form Content */}
-            <div className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               {userType === 'user' ? renderUserForm() : renderRecruiterFormStep()}
-            </div>
+            </form>
 
-                  <div className="animate-slide-in-right" style={{ animationDelay: '200ms' }}>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email Address
-                    </label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors duration-300" />
-                      <input
-                        type="email"
-                        value={userForm.email}
-                        onChange={(e) => handleUserFormChange('email', e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 text-black border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 hover:border-gray-400"
-                        placeholder="Enter your email"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="animate-slide-in-right" style={{ animationDelay: '300ms' }}>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Password
-                    </label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors duration-300" />
-                      <input
-                        type={showPassword ? 'text' : 'password'}
-                        value={userForm.password}
-                        onChange={(e) => handleUserFormChange('password', e.target.value)}
-                        className="w-full pl-10 pr-12 py-3 text-black border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 hover:border-gray-400"
-                        placeholder="Create a password"
-                        required
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-300"
-                      >
-                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="animate-slide-in-right" style={{ animationDelay: '400ms' }}>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Phone Number
-                    </label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors duration-300" />
-                      <input
-                        type="tel"
-                        value={userForm.phone}
-                        onChange={(e) => handleUserFormChange('phone', e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 text-black border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 hover:border-gray-400"
-                        placeholder="Enter your phone number"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="animate-slide-in-right" style={{ animationDelay: '500ms' }}>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Location
-                    </label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors duration-300" />
-                      <input
-                        type="text"
-                        value={userForm.location}
-                        onChange={(e) => handleUserFormChange('location', e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 text-black border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 hover:border-gray-400"
-                        placeholder="Enter your location"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="animate-slide-in-right" style={{ animationDelay: '600ms' }}>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Experience Level
-                    </label>
-                    <div className="grid grid-cols-2 gap-3">
-                      <button
-                        type="button"
-                        onClick={() => handleUserFormChange('experience', 'fresher')}
-                        className={`py-3 px-4 rounded-lg border transition-all duration-300 ${
-                          userForm.experience === 'fresher'
-                            ? 'border-blue-500 bg-blue-50 text-blue-700 transform scale-105'
-                            : 'border-gray-300 text-gray-700 hover:border-gray-400 hover:scale-105'
-                        }`}
-                      >
-                        Fresher
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleUserFormChange('experience', 'experienced')}
-                        className={`py-3 px-4 rounded-lg border transition-all duration-300 ${
-                          userForm.experience === 'experienced'
-                            ? 'border-blue-500 bg-blue-50 text-blue-700 transform scale-105'
-                            : 'border-gray-300 text-gray-700 hover:border-gray-400 hover:scale-105'
-                        }`}
-                      >
-                        Experienced
-                      </button>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                // Recruiter Registration Form
-                <>
-                  <div className="animate-slide-in-right" style={{ animationDelay: '100ms' }}>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Company Name
-                    </label>
-                    <div className="relative">
-                      <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors duration-300" />
-                      <input
-                        type="text"
-                        value={recruiterForm.companyName}
-                        onChange={(e) => handleRecruiterFormChange('companyName', e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 text-black border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 hover:border-gray-400"
-                        placeholder="Enter company name"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  {/* Company Image Upload */}
-                  <div className="animate-slide-in-right" style={{ animationDelay: '150ms' }}>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Company Logo
-                    </label>
-                    <div className="flex items-center space-x-4">
-                      {imagePreview ? (
-                        <div className="relative">
-                          <img
-                            src={imagePreview}
-                            alt="Company logo preview"
-                            className="w-20 h-20 object-cover rounded-lg border border-gray-300"
-                          />
-                          <button
-                            type="button"
-                            onClick={removeImage}
-                            className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors duration-300"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="w-20 h-20 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:border-gray-400 transition-colors duration-300">
-                          <Upload className="w-8 h-8 text-gray-400" />
-                        </div>
-                      )}
-                      <div className="flex-1">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageUpload}
-                          className="hidden"
-                          id="company-image"
-                        />
-                        <label
-                          htmlFor="company-image"
-                          className="cursor-pointer bg-blue-500 border border-blue-600 rounded-lg px-4 py-2 text-sm text-white hover:bg-blue-600 transition-colors duration-300 inline-block"
-
-                        >
-                          Choose Image
-                        </label>
-                        <p className="text-xs text-gray-500 mt-1">
-                          PNG, JPG up to 5MB
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="animate-slide-in-right" style={{ animationDelay: '200ms' }}>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Contact Email
-                    </label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors duration-300" />
-                      <input
-                        type="email"
-                        value={recruiterForm.contactEmail}
-                        onChange={(e) => handleRecruiterFormChange('contactEmail', e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 text-black border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 hover:border-gray-400"
-                        placeholder="Enter contact email"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="animate-slide-in-right" style={{ animationDelay: '300ms' }}>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Contact Phone
-                    </label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors duration-300" />
-                      <input
-                        type="tel"
-                        value={recruiterForm.contactPhone}
-                        onChange={(e) => handleRecruiterFormChange('contactPhone', e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 text-black border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 hover:border-gray-400"
-                        placeholder="Enter contact phone"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="animate-slide-in-right" style={{ animationDelay: '400ms' }}>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Password
-                    </label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors duration-300" />
-                      <input
-                        type={showPassword ? 'text' : 'password'}
-                        value={recruiterForm.password}
-                        onChange={(e) => handleRecruiterFormChange('password', e.target.value)}
-                        className="w-full pl-10 pr-12 py-3 text-black border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 hover:border-gray-400"
-                        placeholder="Create a password"
-                        required
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-300"
-                      >
-                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="animate-slide-in-right" style={{ animationDelay: '500ms' }}>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Company Website
-                    </label>
-                    <div className="relative">
-                      <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors duration-300" />
-                      <input
-                        type="url"
-                        value={recruiterForm.companyWebsite}
-                        onChange={(e) => handleRecruiterFormChange('companyWebsite', e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 text-black border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 hover:border-gray-400"
-                        placeholder="https://company.com"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="animate-slide-in-right" style={{ animationDelay: '600ms' }}>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Company Description
-                    </label>
-                    <div className="relative">
-                      <FileText className="absolute left-3 top-3 w-5 h-5 text-gray-400 transition-colors duration-300" />
-                      <textarea
-                        value={recruiterForm.description}
-                        onChange={(e) => handleRecruiterFormChange('description', e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 text-black border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all duration-300 hover:border-gray-400"
-                        placeholder="Brief description of your company"
-                        rows={3}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="animate-slide-in-right" style={{ animationDelay: '700ms' }}>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Company Address
-                    </label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400 transition-colors duration-300" />
-                      <textarea
-                        value={recruiterForm.address}
-                        onChange={(e) => handleRecruiterFormChange('address', e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 text-black border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all duration-300 hover:border-gray-400"
-                        placeholder="Enter company address"
-                        rows={2}
-                        required
-                      />
-                    </div>
-                  </div>
-                </>
-              )}
-
-              <button
-                onClick={handleSubmit}
-                disabled={isLoading}
-                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] animate-fade-in-up"
-              >
-                {isLoading ? (
-                  <div className="flex items-center justify-center">
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                    Creating Account...
-                  </div>
-                ) : (
-                  `Create ${userType === 'user' ? 'Job Seeker' : 'Recruiter'} Account`
-                )}
-              </button>
-
-              <div className="text-center animate-fade-in-delay-2">
-                <p className="text-sm text-gray-600">
-                  Already have an account?{' '}
-                  <a href="#" className="text-blue-600 hover:text-blue-500 font-medium transition-colors duration-300">
-                    Sign in
-                  </a>
-                </p>
-              </div>
+            <div className="text-center mt-6 animate-fade-in-delay-2">
+              <p className="text-sm text-gray-600">
+                Already have an account?{' '}
+                <a href="#" className="text-blue-600 hover:text-blue-500 font-medium transition-colors duration-300">
+                  Sign in
+                </a>
+              </p>
             </div>
           </div>
         </div>
