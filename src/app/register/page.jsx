@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import axios from 'axios';
 import { 
   User, 
   Building2, 
@@ -27,6 +28,7 @@ export default function RegistrationPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [companyImage, setCompanyImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [error, setError] = useState(null);
 
   // User form state
   const [userForm, setUserForm] = useState({
@@ -77,18 +79,82 @@ export default function RegistrationPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    console.log('Registration submitted:', {
-      userType,
-      data: userType === 'user' ? userForm : recruiterForm,
-      companyImage: companyImage ? companyImage.name : null
-    });
-    
-    setIsLoading(false);
+    try {
+      let formData;
+      
+      if (userType === 'user') {
+        // Validate user form
+        if (!userForm.fullName || !userForm.email || !userForm.password) {
+          throw new Error('Please fill in all required fields');
+        }
+
+        formData = {
+          fullName: userForm.fullName,
+          email: userForm.email,
+          password: userForm.password,
+          phone: userForm.phone,
+          location: userForm.location,
+          role: 'user',
+          skilllevel: userForm.experience
+        };
+      } else {
+        // Validate recruiter form
+        if (!recruiterForm.companyName || !recruiterForm.contactEmail || !recruiterForm.password) {
+          throw new Error('Please fill in all required fields');
+        }
+
+        formData = {
+          fullName: recruiterForm.companyName,
+          email: recruiterForm.contactEmail,
+          password: recruiterForm.password,
+          phone: recruiterForm.contactPhone,
+          location: recruiterForm.address,
+          role: 'recruiter'
+        };
+      }
+
+      // Make API call
+      const response = await axios.post('/api/user/create', formData);
+
+      // Handle successful registration
+      console.log('Registration successful:', response.data);
+      alert('Registration successful! You can now login.');
+      
+      // Reset form
+      if (userType === 'user') {
+        setUserForm({
+          fullName: '',
+          email: '',
+          password: '',
+          phone: '',
+          location: '',
+          experience: 'fresher'
+        });
+      } else {
+        setRecruiterForm({
+          companyName: '',
+          contactEmail: '',
+          contactPhone: '',
+          password: '',
+          companyWebsite: '',
+          description: '',
+          address: ''
+        });
+        setCompanyImage(null);
+        setImagePreview(null);
+      }
+      
+    } catch (error) {
+      console.error('Registration error:', error);
+      setError(error.response?.data?.message || error.message || 'Registration failed');
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  // ... rest of your component code remains the same ...
 
   const benefits = [
     {
@@ -510,6 +576,19 @@ export default function RegistrationPage() {
                 </>
               )}
 
+
+{error && (
+  <div className="bg-red-50 border-l-4 border-red-500 p-4 animate-fade-in">
+    <div className="flex">
+      <div className="flex-shrink-0">
+        <X className="h-5 w-5 text-red-500" />
+      </div>
+      <div className="ml-3">
+        <p className="text-sm text-red-700">{error}</p>
+      </div>
+    </div>
+  </div>
+)}
               <button
                 onClick={handleSubmit}
                 disabled={isLoading}

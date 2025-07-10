@@ -10,7 +10,7 @@ const RecruiterSchema = new Schema(
     companyLogo: { type: String },
     description: { type: String },
     address: { type: String },
-    role: { type: String, default: 'recruiter' },
+    //role: { type: String, default: 'recruiter' },
 
     postedJobs: [
       {
