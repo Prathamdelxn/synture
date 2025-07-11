@@ -205,8 +205,8 @@ export default function LoginPage() {
             <div className="mt-6 text-center animate-fade-in-delay-2">
               <p className="text-sm text-gray-600">
                 Don't have an account?{' '}
-                <a href="/#" className="text-blue-600 hover:text-blue-500 font-medium transition-colors duration-300 hover:scale-105">
-                  Sign up
+                <a href="/register" className="text-blue-600 hover:text-blue-500 font-medium transition-colors duration-300 hover:scale-105">
+                  Register
                 </a>
               </p>
             </div>
@@ -296,3 +296,4 @@ export default function LoginPage() {
     </div>
   );
 }
+

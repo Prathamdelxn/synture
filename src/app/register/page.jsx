@@ -33,9 +33,9 @@ export default function RegistrationPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [companyImage, setCompanyImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-  const [isVisible, setIsVisible] = useState(false);
-  const [animationPhase, setAnimationPhase] = useState(0);
   const [currentStep, setCurrentStep] = useState(1);
+  const [animationPhase, setAnimationPhase] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
 
   const [userForm, setUserForm] = useState({
     fullName: '',
@@ -44,8 +44,7 @@ export default function RegistrationPage() {
     phone: '',
     location: '',
     experience: 'fresher',
-    jobPreference: 'full-time',
-    resume: null
+    jobPreference: 'full-time'
   });
 
   const [recruiterForm, setRecruiterForm] = useState({
@@ -72,9 +71,6 @@ export default function RegistrationPage() {
     }, 3000);
     return () => clearInterval(interval);
   }, []);
-
-  const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, 2));
-  const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
 
   const handleUserFormChange = (field, value) => {
     setUserForm(prev => ({ ...prev, [field]: value }));
@@ -112,7 +108,6 @@ export default function RegistrationPage() {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500));
     
     console.log('Registration submitted:', {
@@ -122,6 +117,14 @@ export default function RegistrationPage() {
     });
     
     setIsLoading(false);
+  };
+
+  const nextStep = () => {
+    if (currentStep < 2) setCurrentStep(currentStep + 1);
+  };
+
+  const prevStep = () => {
+    if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
 
   const benefits = [
@@ -237,31 +240,8 @@ export default function RegistrationPage() {
         </div>
       </div>
 
-      <div className="animate-slide-in-right" style={{ animationDelay: '600ms' }}>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Upload Resume</label>
-        <div className="relative">
-          <input
-            type="file"
-            accept=".pdf,.doc,.docx"
-            onChange={handleResumeUpload}
-            className="hidden"
-            id="resume-upload"
-          />
-          <label
-            htmlFor="resume-upload"
-            className="w-full flex items-center justify-between pl-4 pr-6 py-3 text-black border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer transition-all duration-300"
-          >
-            <span className="truncate">
-              {userForm.resume ? userForm.resume.name : 'Select resume file'}
-            </span>
-            <Upload className="w-5 h-5 text-gray-400" />
-          </label>
-        </div>
-      </div>
-
-      <div className="animate-slide-in-right" style={{ animationDelay: '700ms' }}>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Experience Level</label>
-        <div className="grid grid-cols-2 gap-3">
+      <div className="animate-slide-in-right md:col-span-2" style={{ animationDelay: '600ms' }}>
+        <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
             onClick={() => handleUserFormChange('experience', 'fresher')}
@@ -287,7 +267,7 @@ export default function RegistrationPage() {
         </div>
       </div>
 
-      <div className="animate-slide-in-right md:col-span-2" style={{ animationDelay: '800ms' }}>
+      <div className="animate-slide-in-right md:col-span-2" style={{ animationDelay: '700ms' }}>
         <button
           onClick={handleSubmit}
           disabled={isLoading}
@@ -377,7 +357,6 @@ export default function RegistrationPage() {
           </div>
 
           <div className="animate-slide-in-right md:col-span-2" style={{ animationDelay: '500ms' }}>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Company Logo</label>
             <div className="flex items-center space-x-4">
               {imagePreview ? (
                 <div className="relative">
@@ -395,7 +374,7 @@ export default function RegistrationPage() {
                   </button>
                 </div>
               ) : (
-                <div className="w-20 h-20 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:border-gray-400 transition-colors">
+                <div className="w-15 h-15 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:border-gray-400 transition-colors">
                   <Upload className="w-5 h-5 text-gray-400" />
                 </div>
               )}
@@ -412,9 +391,8 @@ export default function RegistrationPage() {
                   className="cursor-pointer bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg px-6 py-3 text-sm hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 inline-flex items-center"
                 >
                   <Upload className="w-4 h-4 mr-2" />
-                  Upload Logo
+                  Upload Company Logo
                 </label>
-                <p className="text-xs text-gray-500 mt-1">PNG, JPG up to 5MB</p>
               </div>
             </div>
           </div>
@@ -637,14 +615,15 @@ export default function RegistrationPage() {
             </div>
 
             {/* Form Content */}
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-4">
               {userType === 'user' ? renderUserForm() : renderRecruiterFormStep()}
-            </form>
+            </div>
 
-            <div className="text-center mt-6 animate-fade-in-delay-2">
+            {/* Footer */}
+            <div className="text-center mt-6 pt-2 border-t border-gray-80">
               <p className="text-sm text-gray-600">
                 Already have an account?{' '}
-                <a href="#" className="text-blue-600 hover:text-blue-500 font-medium transition-colors duration-300">
+                <a href="/login" className="text-blue-600 hover:text-blue-500 font-medium transition-colors duration-300">
                   Sign in
                 </a>
               </p>
