@@ -128,10 +128,10 @@ export default function Layout({ children }) {
             <div>
               <h4 className="font-semibold text-gray-900 mb-4">Company</h4>
               <ul className="space-y-3 text-gray-600">
-                <li><a href="#" className="hover:text-gray-900">About Us</a></li>
-                <li><a href="#" className="hover:text-gray-900">Contact</a></li>
+                <li><a href="/home/about-us" className="hover:text-gray-900">About Us</a></li>
+                <li><a href="/home/contact-us" className="hover:text-gray-900">Contact</a></li>
                 <li><a href="#" className="hover:text-gray-900">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-gray-900">Terms of Service</a></li>
+                <li><a href="/home/terms" className="hover:text-gray-900">Terms of Service</a></li>
               </ul>
             </div>
           </div>
