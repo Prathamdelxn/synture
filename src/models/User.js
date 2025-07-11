@@ -8,7 +8,7 @@ const UserSchema = new Schema(
     phone: { type: String },
     location: { type: String },
     role: { type: String, default: 'user' },
-    skilllevel: {type: String },
+    skillLevel: {type: String },
 
     skills: { name: { type: String } },
 
