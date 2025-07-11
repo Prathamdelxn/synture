@@ -9,8 +9,9 @@ const JWT_SECRET = process.env.JWT_SECRET || 'yoursecretkey'; // Use env in prod
 export async function POST(req) {
   try {
     await dbConnect();
-
-    const { email, password } = await req.json();
+    
+    const body = await req.json();
+    const { email, password } = body;
 
     if (!email || !password) {
       return NextResponse.json({ message: 'Email and password are required' }, { status: 400 });

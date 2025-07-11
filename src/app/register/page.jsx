@@ -1,16 +1,17 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { 
-  User, 
-  Building2, 
-  Mail, 
-  Lock, 
-  Phone, 
-  MapPin, 
-  Eye, 
-  EyeOff, 
-  Globe, 
+import { toast } from 'react-hot-toast';
+import {
+  User,
+  Building2,
+  Mail,
+  Lock,
+  Phone,
+  MapPin,
+  Eye,
+  EyeOff,
+  Globe,
   FileText,
   CheckCircle,
   Users,
@@ -26,6 +27,8 @@ import {
   TrendingUp,
   Sparkles
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import axios from 'axios'
 
 export default function RegistrationPage() {
   const [userType, setUserType] = useState('user');
@@ -36,15 +39,13 @@ export default function RegistrationPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [animationPhase, setAnimationPhase] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
-
+  const router = useRouter();
   const [userForm, setUserForm] = useState({
     fullName: '',
     email: '',
     password: '',
     phone: '',
-    location: '',
-    experience: 'fresher',
-    jobPreference: 'full-time'
+    location: ''
   });
 
   const [recruiterForm, setRecruiterForm] = useState({
@@ -104,19 +105,36 @@ export default function RegistrationPage() {
     setImagePreview(null);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    console.log('Registration submitted:', {
-      userType,
-      data: userType === 'user' ? userForm : recruiterForm,
-      companyImage: companyImage ? companyImage.name : null
-    });
-    
-    setIsLoading(false);
+  const handleSubmit = async () => {
+    try {
+      //e.preventDefault();
+      setIsLoading(true);
+      
+      const res = await axios.post('/api/user/create' , userForm , { validateStatus: () => true });
+
+      if(res.status == 201){
+        toast.success("Registration Completed")
+        setTimeout(() => {
+          router.push('/login')
+        },3000)
+      }
+
+      if(res.status == 400){
+        toast.error('Please fill all the required fields')
+      }
+      if(res.status == 409){
+        toast.error('User already exists');
+      }
+
+      const data = res.data.user;
+      console.log(data);
+
+      
+    } catch (err) {
+      toast.error("Server Error")
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const nextStep = () => {
@@ -128,27 +146,27 @@ export default function RegistrationPage() {
   };
 
   const benefits = [
-    { 
-      icon: CheckCircle, 
-      text: "Access thousands of jobs", 
+    {
+      icon: CheckCircle,
+      text: "Access thousands of jobs",
       color: "from-green-400 to-emerald-500",
       delay: "0ms"
     },
-    { 
-      icon: Users, 
-      text: "Connect with top companies", 
+    {
+      icon: Users,
+      text: "Connect with top companies",
       color: "from-blue-400 to-cyan-500",
       delay: "200ms"
     },
-    { 
-      icon: Target, 
-      text: "Smart matching algorithm", 
+    {
+      icon: Target,
+      text: "Smart matching algorithm",
       color: "from-purple-400 to-pink-500",
       delay: "400ms"
     },
-    { 
-      icon: Award, 
-      text: "Premium career guidance", 
+    {
+      icon: Award,
+      text: "Premium career guidance",
       color: "from-orange-400 to-red-500",
       delay: "600ms"
     }
@@ -245,22 +263,20 @@ export default function RegistrationPage() {
           <button
             type="button"
             onClick={() => handleUserFormChange('experience', 'fresher')}
-            className={`py-3 px-4 rounded-lg border transition-all duration-300 ${
-              userForm.experience === 'fresher'
-                ? 'border-blue-500 bg-blue-50 text-blue-700 transform scale-105'
-                : 'border-gray-300 text-gray-700 hover:border-gray-400'
-            }`}
+            className={`py-3 px-4 rounded-lg border transition-all duration-300 ${userForm.experience === 'fresher'
+              ? 'border-blue-500 bg-blue-50 text-blue-700 transform scale-105'
+              : 'border-gray-300 text-gray-700 hover:border-gray-400'
+              }`}
           >
             Fresher
           </button>
           <button
             type="button"
             onClick={() => handleUserFormChange('experience', 'experienced')}
-            className={`py-3 px-4 rounded-lg border transition-all duration-300 ${
-              userForm.experience === 'experienced'
-                ? 'border-blue-500 bg-blue-50 text-blue-700 transform scale-105'
-                : 'border-gray-300 text-gray-700 hover:border-gray-400'
-            }`}
+            className={`py-3 px-4 rounded-lg border transition-all duration-300 ${userForm.experience === 'experienced'
+              ? 'border-blue-500 bg-blue-50 text-blue-700 transform scale-105'
+              : 'border-gray-300 text-gray-700 hover:border-gray-400'
+              }`}
           >
             Experienced
           </button>
@@ -489,31 +505,30 @@ export default function RegistrationPage() {
       {/* Left Side - Branding and Benefits (40%) */}
       <div className="hidden lg:flex lg:w-2/5 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
-        
+
         {/* Animated floating elements */}
         <div className="absolute top-20 left-20 w-24 h-24 bg-white/10 rounded-full blur-xl animate-pulse"></div>
         <div className="absolute bottom-32 right-16 w-32 h-32 bg-white/5 rounded-full blur-2xl animate-pulse delay-1000"></div>
         <div className="absolute top-1/3 right-20 w-16 h-16 bg-white/10 rounded-full blur-lg animate-pulse delay-500"></div>
-        
+
         {/* Floating geometric shapes */}
         <div className="absolute top-1/4 left-1/4 w-8 h-8 border-2 border-white/20 rotate-45 animate-bounce delay-300"></div>
         <div className="absolute bottom-1/4 left-1/3 w-6 h-6 bg-white/10 rounded-full animate-bounce delay-700"></div>
         <div className="absolute top-3/4 right-1/4 w-10 h-10 border-2 border-white/15 rounded-full animate-bounce delay-1000"></div>
-        
+
         {/* Dynamic floating elements */}
         {dynamicElements.map((element, index) => (
           <div
             key={index}
-            className={`absolute ${element.position} transform transition-all duration-1000 ${
-              animationPhase === index ? 'scale-125 opacity-100' : 'scale-100 opacity-60'
-            }`}
+            className={`absolute ${element.position} transform transition-all duration-1000 ${animationPhase === index ? 'scale-125 opacity-100' : 'scale-100 opacity-60'
+              }`}
           >
             <div className="bg-white/20 backdrop-blur-sm rounded-full p-3 border border-white/30">
               <element.icon className="w-5 h-5 text-white" />
             </div>
           </div>
         ))}
-        
+
         {/* Main content */}
         <div className="relative z-10 flex flex-col justify-center items-center p-8 text-white w-full">
           <div className="mb-8 relative animate-fade-in">
@@ -525,7 +540,7 @@ export default function RegistrationPage() {
               <Sparkles className="w-5 h-5 text-white" />
             </div>
           </div>
-          
+
           <div className="text-center animate-slide-up">
             <h1 className="text-3xl font-bold mb-4 text-center bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
               Welcome to Synture
@@ -534,12 +549,12 @@ export default function RegistrationPage() {
               Connect talent with opportunity. Join thousands who trust us with their career journey.
             </p>
           </div>
-          
+
           <div className="space-y-4 w-full max-w-sm">
             <p className="text-lg font-semibold text-white/95 mb-4 animate-fade-in-delay-2">Why choose Synture:</p>
             {benefits.map((benefit, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className="flex items-center space-x-3 text-white/90 hover:text-white transition-colors duration-300 animate-slide-in-left"
                 style={{ animationDelay: benefit.delay }}
               >
@@ -568,10 +583,10 @@ export default function RegistrationPage() {
                 </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
-                <div 
+                <div
                   className="bg-gradient-to-r from-blue-600 to-indigo-600 h-2 rounded-full transition-all duration-300"
-                  style={{ 
-                    width: userType === 'user' ? '100%' : `${(currentStep / 2) * 100}%` 
+                  style={{
+                    width: userType === 'user' ? '100%' : `${(currentStep / 2) * 100}%`
                   }}
                 ></div>
               </div>
@@ -581,8 +596,8 @@ export default function RegistrationPage() {
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Create Account</h2>
               <p className="text-gray-600">
-                {userType === 'user' 
-                  ? 'Complete your profile information' 
+                {userType === 'user'
+                  ? 'Complete your profile information'
                   : `Step ${currentStep}: ${currentStep === 1 ? 'Basic Information' : 'Company Details'}`
                 }
               </p>
@@ -592,22 +607,20 @@ export default function RegistrationPage() {
             <div className="flex bg-gray-100 rounded-lg p-1 mb-6">
               <button
                 onClick={() => setUserType('user')}
-                className={`flex-1 flex items-center justify-center py-2 px-4 rounded-md transition-all duration-300 ${
-                  userType === 'user' 
-                    ? 'bg-white text-blue-600 shadow-sm transform scale-105' 
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
+                className={`flex-1 flex items-center justify-center py-2 px-4 rounded-md transition-all duration-300 ${userType === 'user'
+                  ? 'bg-white text-blue-600 shadow-sm transform scale-105'
+                  : 'text-gray-600 hover:text-gray-900'
+                  }`}
               >
                 <User className="w-4 h-4 mr-2" />
                 Job Seeker
               </button>
               <button
                 onClick={() => setUserType('recruiter')}
-                className={`flex-1 flex items-center justify-center py-2 px-4 rounded-md transition-all duration-300 ${
-                  userType === 'recruiter' 
-                    ? 'bg-white text-blue-600 shadow-sm transform scale-105' 
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
+                className={`flex-1 flex items-center justify-center py-2 px-4 rounded-md transition-all duration-300 ${userType === 'recruiter'
+                  ? 'bg-white text-blue-600 shadow-sm transform scale-105'
+                  : 'text-gray-600 hover:text-gray-900'
+                  }`}
               >
                 <Building2 className="w-4 h-4 mr-2" />
                 Recruiter
