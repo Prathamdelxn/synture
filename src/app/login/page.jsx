@@ -2,6 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { Mail, Lock, Eye, EyeOff, Sparkles, Shield, Users, CheckCircle, Target, Award, Briefcase } from 'lucide-react';
+import axios from 'axios';
+import toast from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -9,6 +12,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     // Trigger animations after component mounts
@@ -18,12 +22,45 @@ export default function LoginPage() {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsLoading(false);
-    console.log('Login submitted:', { email, password });
+  const handleSubmit = async () => {
+
+    try {
+      setIsLoading(true);
+      const res = await axios.post('/api/user/login',{ 
+        "email" : email,
+        "password" : password},
+        { 
+          validateStatus: () => true,
+          headers: {
+        'Content-Type': 'application/json',
+      }})
+
+      switch (res.status) {
+
+        case 200:
+          toast.success('LogIn successfull');
+          router.push('/user/profile');
+          break;
+
+        case 400:
+          toast.error('Enter Email and Password');
+          break;
+
+        case 401:
+          toast.error("Invalid email or password");
+          break;
+
+      }
+      const token = res.data.token;
+      localStorage.setItem('Authorization', token)
+
+      console.log('Login submitted:', { email, password });
+    } catch (err) {
+      toast.error('Server error')
+    }
+    finally {
+      setIsLoading(false);
+    }
   };
 
   const benefits = [
@@ -54,17 +91,17 @@ export default function LoginPage() {
       {/* Left side - Logo and Benefits */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
-        
+
         {/* Animated floating elements */}
         <div className="absolute top-20 left-20 w-24 h-24 bg-white/10 rounded-full blur-xl animate-pulse"></div>
         <div className="absolute bottom-32 right-16 w-32 h-32 bg-white/5 rounded-full blur-2xl animate-pulse delay-1000"></div>
         <div className="absolute top-1/3 right-20 w-16 h-16 bg-white/10 rounded-full blur-lg animate-pulse delay-500"></div>
-        
+
         {/* Floating geometric shapes */}
         <div className="absolute top-1/4 left-1/4 w-8 h-8 border-2 border-white/20 rotate-45 animate-bounce delay-300"></div>
         <div className="absolute bottom-1/4 left-1/3 w-6 h-6 bg-white/10 rounded-full animate-bounce delay-700"></div>
         <div className="absolute top-3/4 right-1/4 w-10 h-10 border-2 border-white/15 rounded-full animate-bounce delay-1000"></div>
-        
+
         {/* Main content */}
         <div className="relative z-10 flex flex-col justify-center items-center p-12 text-white w-full">
           <div className="mb-8 relative animate-fade-in">
@@ -80,7 +117,7 @@ export default function LoginPage() {
               <Sparkles className="w-5 h-5 text-white" />
             </div>
           </div>
-          
+
           <div className="text-center animate-slide-up">
             <h1 className="text-4xl font-bold mb-4 text-center bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
               Welcome Back
@@ -89,12 +126,12 @@ export default function LoginPage() {
               Secure access to your digital world. Join millions who trust us with their journey.
             </p>
           </div>
-          
+
           <div className="space-y-4 w-full max-w-md">
             <p className="text-lg font-semibold text-white/95 mb-4 animate-fade-in-delay-2">Why choose Synture:</p>
             {benefits.map((benefit, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className="flex items-center space-x-3 text-white/90 hover:text-white transition-colors duration-300 animate-slide-in-left"
                 style={{ animationDelay: benefit.delay }}
               >
